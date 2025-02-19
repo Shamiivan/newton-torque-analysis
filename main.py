@@ -164,36 +164,37 @@ def monitor_robot_state(robot, duration=10.0, dt=0.1):
 
 def main():
     # # Setup simulation
-    physClient, robot = setup_simulation()
-
-    # Add gravity vector visualization
-    add_gravity_vector_visualization()
-
-    # Print initial COM data
-    print("\n=== Initial Center of Mass Analysis ===")
-    print_com_data(robot)
-
-    # Set robot to standing pose
-    set_standing_pose(robot)
-
-    # Let simulation settle
-    for _ in range(1000):
-        p.stepSimulation()
-        # Monitor robot state
-        monitor_robot_state(robot)
-
-    p.disconnect()
+    # physClient, robot = setup_simulation()
     #
+    # print(robot)
+    # # Add gravity vector visualization
+    # # add_gravity_vector_visualization()
+    #
+    # # Print initial COM data
+    # print("\n=== Initial Center of Mass Analysis ===")
+    # print_com_data(robot)
+    #
+    # # Set robot to standing pose
+    # set_standing_pose(robot)
+    #
+    # # Let simulation settle
+    # for _ in range(1000):
+    #     p.stepSimulation()
+    #     # Monitor robot state
+    #     monitor_robot_state(robot)
+    #
+    # p.disconnect()
+
     # # Print final COM data
-    # sim = Simulation()
-    # sim.connect()
-    # sim.load_ground_plane()
-    # sim.load_robot("newton/newton.urdf", [0, 0, 0.33])
-    # # for _ in range(1000):
-    # try:
-    #     while True:
-    #         sim.step()
-    # except KeyboardInterrupt:
-    #     sim.clean()
+    sim = Simulation()
+    sim.connect()
+    sim.load_ground_plane()
+    sim.load_robot("newton/newton.urdf", [0, 0, 0.5 ])
+    # for _ in range(1000):
+    try:
+        while True:
+            sim.step()
+    except KeyboardInterrupt:
+        sim.clean()
 if __name__ == "__main__":
     main()
