@@ -3,9 +3,16 @@ import pybullet as p
 import numpy as np
 import time
 import pybullet_data
+from typing import Tuple, List, Dict, Any
+from core import Simulation
 
 
-def setup_simulation():
+
+def setup_simulation(
+        urdf_path:str="newton/newton.urdf",
+        start_pos:List[float]=[0, 0, 0.33],
+        time_step:float=1/240
+)-> Tuple[int, int]:
     # Start simulation
     physClient = p.connect(p.GUI)
     p.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -18,7 +25,7 @@ def setup_simulation():
     plane = p.loadURDF("plane.urdf")
 
     # Load robot
-    robot = p.loadURDF("newton/newton.urdf", [0, 0, 0.33])
+    robot = p.loadURDF(urdf_path, start_pos)
 
     return physClient, robot
 
@@ -27,11 +34,26 @@ def add_gravity_vector_visualization():
     # Add a red line showing gravity direction from robot base
     start_pos = [0, 0, 0.33]  # Robot base position
     end_pos = [0, 0, 0.13]  # 20cm below in Z direction
-    p.addUserDebugLine(start_pos, end_pos, [1, 0, 0], 2)  # Red line
+    p.addUserDebugLine(start_pos, end_pos, [1, 0, 0], 2)
+
+def add_moment_of_force_visualization():
+    pass
+def add_frame_of_reference_visualization():
+    pass
+def add_center_of_mass_visualization():
+    pass
+def add_pose_visualization(
+        robot: int,
+        position: List[float],
+        rgb: List[float]=[1, 0, 0],
+        line_width: float=2,
+
+):
+    pass
 
 
-def get_base_pose(robot):
-    # Get base position and orientation
+def get_base_pose(robot: int) -> Tuple[Tuple[float, float, float], Tuple[float, float, float]]:
+    """Get base position and orientation of robot"""
     pos, orn = p.getBasePositionAndOrientation(robot)
     euler = p.getEulerFromQuaternion(orn)
     return pos, euler
@@ -79,10 +101,10 @@ def print_com_data(robot):
 
 def set_standing_pose(robot):
     standing_pose = {
-        "FL": [0.0, 0.5, -1.0],  # HAA, HFE, KFE angles in radians
-        "FR": [0.0, 0.5, -1.0],
-        "HL": [0.0, 0.5, -1.0],
-        "HR": [0.0, 0.5, -1.0]
+        "FL": [0.0, 0.5, -1.5],  # HAA, HFE, KFE angles in radians
+        "FR": [0.0, 0.5, -1.5],
+        "HL": [0.0, 0.5, -1.5],
+        "HR": [0.0, 0.5, -1.5]
     }
 
     FL_joints = [0, 1, 2]  # Front Left: HAA, HFE, KFE
@@ -102,6 +124,8 @@ def set_standing_pose(robot):
                                     force=1000)
 
 
+def update_rendering():
+    pass
 def monitor_robot_state(robot, duration=10.0, dt=0.1):
     # Enable torque sensors for all joints
     for i in range(p.getNumJoints(robot)):
@@ -139,7 +163,7 @@ def monitor_robot_state(robot, duration=10.0, dt=0.1):
 
 
 def main():
-    # Setup simulation
+    # # Setup simulation
     physClient, robot = setup_simulation()
 
     # Add gravity vector visualization
@@ -153,15 +177,23 @@ def main():
     set_standing_pose(robot)
 
     # Let simulation settle
-    # for _ in range(100000):
-    while True:
+    for _ in range(1000):
         p.stepSimulation()
-
-    # Monitor robot state
-    monitor_robot_state(robot)
+        # Monitor robot state
+        monitor_robot_state(robot)
 
     p.disconnect()
-
-
+    #
+    # # Print final COM data
+    # sim = Simulation()
+    # sim.connect()
+    # sim.load_ground_plane()
+    # sim.load_robot("newton/newton.urdf", [0, 0, 0.33])
+    # # for _ in range(1000):
+    # try:
+    #     while True:
+    #         sim.step()
+    # except KeyboardInterrupt:
+    #     sim.clean()
 if __name__ == "__main__":
     main()
